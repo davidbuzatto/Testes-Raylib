@@ -35,6 +35,13 @@ GameWorld::GameWorld() {
     // creates a body fixture
     groundBody->CreateFixture( &groundBox, 0.0f );
 
+
+    mouseBodyDef.position.Set( 0.0f, 0.0f );
+    mouseBody = pw.CreateBody( &mouseBodyDef );
+    mouseBox.SetAsBox( 20.0f, 20.0f );
+    mouseBody->CreateFixture( &mouseBox, 0.0f );
+    
+
     // dynamic body
     bodyDef.type = b2_dynamicBody;
 
@@ -51,15 +58,16 @@ GameWorld::GameWorld() {
     dynamicBox.SetAsBox( 20.0f, 20.0f );
 
     fixtureDef.shape = &dynamicBox;
-    fixtureDef.density = 1.0f;
-    fixtureDef.friction = 0.7f;
+    fixtureDef.density = 10.0f;
+    fixtureDef.friction = 1.0f;
     body->CreateFixture( &fixtureDef );
 
-    float width = 10;
+    /*float width = 10;
     float height = 10;
     float space = 1;
     int max = 19;
 
+    // triangle
     for ( int i = 0; i < max; i++ ) {
 
         for ( int j = 0; j < 2*i+1; j++ ) {
@@ -88,32 +96,42 @@ GameWorld::GameWorld() {
             obstacleFixtureDefs.push_back( newFixtureDef );
 
         }
-    }
-
-    /*for ( int i = 0; i < 10; i++ ) {
-
-        b2BodyDef newBodyDef;
-        newBodyDef.type = b2_dynamicBody;
-        newBodyDef.position.Set( 500.0f + ( larg + 5 ) * i * 2, 20.0f );
-
-        b2Body* newObstacle = pw.CreateBody( &newBodyDef );
-
-        b2PolygonShape newPolygonShape;
-        newPolygonShape.SetAsBox( larg, alt );
-        
-        b2FixtureDef newFixtureDef;
-        newFixtureDef.shape = &newPolygonShape;
-        newFixtureDef.density = 1.0f;
-        newFixtureDef.friction = 0.3f;
-
-        newObstacle->CreateFixture( &newFixtureDef );
-
-        obstacles.push_back( newObstacle );
-        obstacleDefs.push_back( newBodyDef );
-        obstacleDynamicBoxes.push_back( newPolygonShape );
-        obstacleFixtureDefs.push_back( newFixtureDef );
-
     }*/
+
+    float width = 5;
+    float height = 5;
+    float space = 1;
+    int max = 30;
+
+    for ( int i = 0; i < max; i++ ) {
+
+        for ( int j = 0; j < max; j++ ) {
+            
+            b2BodyDef newBodyDef;
+            newBodyDef.type = b2_dynamicBody;
+            newBodyDef.position.Set( 
+                150.0f + ( width * j * 2 ) + ( space * j ), 
+                20.0f + ( height * i * 2 ) + ( space * i ) );
+
+            b2Body* newObstacle = pw.CreateBody( &newBodyDef );
+
+            b2PolygonShape newPolygonShape;
+            newPolygonShape.SetAsBox( width, height );
+            
+            b2FixtureDef newFixtureDef;
+            newFixtureDef.shape = &newPolygonShape;
+            newFixtureDef.density = 2.0f;
+            newFixtureDef.friction = 0.3f;
+
+            newObstacle->CreateFixture( &newFixtureDef );
+
+            obstacles.push_back( newObstacle );
+            obstacleDefs.push_back( newBodyDef );
+            obstacleDynamicBoxes.push_back( newPolygonShape );
+            obstacleFixtureDefs.push_back( newFixtureDef );
+
+        }
+    }
 
 }
 
@@ -127,7 +145,7 @@ GameWorld::~GameWorld() = default;
  */
 void GameWorld::inputAndUpdate() {
 
-    if ( IsKeyDown( KEY_RIGHT ) ) {
+    /*if ( IsKeyDown( KEY_RIGHT ) ) {
         b2Vec2 f = body->GetWorldVector( b2Vec2( 1000000.0f, 0.0f ) );
         b2Vec2 p = body->GetWorldPoint( b2Vec2( 0, 0 ) );
         body->ApplyForce( f, p, true );
@@ -141,9 +159,33 @@ void GameWorld::inputAndUpdate() {
         b2Vec2 f = body->GetWorldVector( b2Vec2( 0.0f, -10000000.0f ) );
         b2Vec2 p = body->GetWorldPoint( b2Vec2( 0, 0 ) );
         body->ApplyForce( f, p, true );
-    }
+    }*/
+
+    Vector2 mousePos = GetMousePosition();
+
+    body->SetTransform( b2Vec2( GetMouseX(), GetMouseY() ), body->GetAngle() );
+    body->ApplyLinearImpulse( 
+        b2Vec2( 
+            ( mousePos.x - lastMousePos.x ) * 100000, 
+            ( mousePos.y - lastMousePos.y ) * 100000
+        ),
+        body->GetPosition(),
+        true
+    );
+
+
+    /*mouseBody->SetTransform( b2Vec2( GetMouseX(), GetMouseY() ), mouseBody->GetAngle() );
+    mouseBody->ApplyLinearImpulse( 
+        b2Vec2( 
+            ( mousePos.x - lastMousePos.x ) * 100000, 
+            ( mousePos.y - lastMousePos.y ) * 100000
+        ),
+        mouseBody->GetPosition(),
+        true
+    );*/
 
     pw.Step( GetFrameTime(), velocityIterations, positionIterations );
+    lastMousePos = mousePos;
 
 }
 
@@ -156,6 +198,7 @@ void GameWorld::draw() {
     ClearBackground( WHITE );
 
     b2Vec2 position = body->GetPosition();
+    //b2Vec2 mBodyPosition = mouseBody->GetPosition();
     //float angle = body->GetAngle();
 
     if ( colors.empty() ) {
@@ -172,14 +215,27 @@ void GameWorld::draw() {
         groundBox.m_vertices->y * -2,
         BLUE );
 
-    DrawRectangle( 
+    /*DrawRectangle( 
         position.x + dynamicBox.m_vertices->x, 
         position.y + dynamicBox.m_vertices->y, 
         dynamicBox.m_vertices->x * -2,
         dynamicBox.m_vertices->y * -2,
+        DARKBLUE );*/
+
+    DrawCircle( 
+        position.x, 
+        position.y, 
+        dynamicBox.m_vertices->x * -1,
         DARKBLUE );
 
-    for ( size_t i = 0; i < obstacles.size(); i++ ) {
+    /*DrawRectangle( 
+        mBodyPosition.x + mouseBox.m_vertices->x, 
+        mBodyPosition.y + mouseBox.m_vertices->y, 
+        mouseBox.m_vertices->x * -2,
+        mouseBox.m_vertices->y * -2,
+        ORANGE );*/
+
+    /*for ( size_t i = 0; i < obstacles.size(); i++ ) {
         b2Vec2 obstaclePosition = obstacles[i]->GetPosition();
         DrawRectangle( 
             obstaclePosition.x + obstacleDynamicBoxes[i].m_vertices->x, 
@@ -187,9 +243,17 @@ void GameWorld::draw() {
             obstacleDynamicBoxes[i].m_vertices->x * -2,
             obstacleDynamicBoxes[i].m_vertices->y * -2,
             colors[i] );
+    }*/
+    for ( size_t i = 0; i < obstacles.size(); i++ ) {
+        b2Vec2 obstaclePosition = obstacles[i]->GetPosition();
+        DrawCircle( 
+            obstaclePosition.x, 
+            obstaclePosition.y, 
+            obstacleDynamicBoxes[i].m_vertices->x * -1,
+            colors[i] );
     }
 
-    DrawCircle( 
+    /*DrawCircle( 
         groundBodyDef.position.x, 
         groundBodyDef.position.y, 
         5,
@@ -199,7 +263,7 @@ void GameWorld::draw() {
         position.x, 
         position.y, 
         5,
-        BLACK );
+        BLACK );*/
 
     DrawFPS( 20, 20 );
 

@@ -25,6 +25,10 @@ class GameWorld : public virtual Drawable {
     b2Body* groundBody;
     b2PolygonShape groundBox;
 
+    b2BodyDef mouseBodyDef;
+    b2Body* mouseBody;
+    b2PolygonShape mouseBox;
+
     b2BodyDef bodyDef;
     b2Body* body;
     b2PolygonShape dynamicBox;
@@ -41,6 +45,8 @@ class GameWorld : public virtual Drawable {
     std::vector<b2PolygonShape> obstacleDynamicBoxes;
     std::vector<b2FixtureDef> obstacleFixtureDefs;
     std::vector<Color> colors;
+
+    Vector2 lastMousePos;
     
 public:
 
