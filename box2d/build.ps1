@@ -47,6 +47,8 @@ if ( $compile -or $cleanAndCompile -or $compileAndRun -or $all ) {
         -Wno-missing-braces `
         -I include/ `
         -I include/box2d `
+        -I ../raylib/include/ `
+        -L ../raylib/lib/ `
         -L lib/ `
         -lraylib `
         -lopengl32 `

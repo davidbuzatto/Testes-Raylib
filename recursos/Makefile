@@ -12,7 +12,7 @@
 
 currentFolderName := $(lastword $(notdir $(shell pwd)))
 compiledFile := $(currentFolderName).exe
-CXXFLAGS := -O1 -Wall -Wextra -Wno-unused-parameter -pedantic-errors -std=c++23 -Wno-missing-braces -I include/ -I include/box2d -I ../raylib/include -L lib/ -L ../raylib/lib/ -lraylib -lopengl32 -lgdi32 -lbox2d -lwinmm
+CXXFLAGS := -O1 -Wall -Wextra -Wno-unused-parameter -pedantic-errors -std=c++23 -Wno-missing-braces -I include/ -I ../raylib/include -L ../raylib/lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
 
 all: clean compile run
 
