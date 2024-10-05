@@ -8,15 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <stdarg.h>
-#include <math.h>
-#include <string.h>
-#include <time.h>
-#include <assert.h>
 
-#include <raylib.h>
-
-#include <utils.h>
+#include "utils.h"
+#include "raylib/raylib.h"
 
 double toRadians( double degrees ) {
     return degrees * PI / 180.0;
